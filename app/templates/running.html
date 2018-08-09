@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+        <div class="page-header">
+            <h3>运行任务列表</h3>
+        </div>
+    {% for task in tasks %}
+    <li class="list-group-item">
+        <form action="{{ url_for(".cancel", task_id=task.id) }} " method="post">
+            <a href="{{ url_for(".running_detail", task_id=task.id) }}">Task id: {{ task.id }} </a>
+            <p>Create Time: {{ task.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            <button class="btn btn-danger" type="submit" value="stop">Stop</button>
+        </form>
+    </li>
+    {% endfor %}
+</div>
+{% endblock %}

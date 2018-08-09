@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container">
+        <div class="page-header">
+            <h3>运行</h3>
+        </div>
+        <div id="prog_out" class="progress progress-striped active">
+            <div id="prog_in" class="progress-bar" style="width: 60%;">
+                <span class="sr-only">60% Complete</span>
+            </div>
+        </div>
+        <div>
+
+        </div>
+        <button type="button" class="btn btn-default" name="start" value="start">取消任务</button>
+    </div>
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+{% endblock %}

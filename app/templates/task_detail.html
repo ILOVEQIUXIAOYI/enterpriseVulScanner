@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+    <div class="page-header">
+        <h3>选择插件添加到任务</h3>
+    </div>
+    <div>
+        <p>任务ip</p>
+        {% for ip in task.ip_list %}
+            <p>{{ ip }}</p>
+        {% endfor %}
+    </div>
+    <div>
+        <p>任务端口</p>
+        {% for port in task.port_list %}
+            <p>{{ port }}</p>
+        {% endfor %}
+    </div>
+    <label class="btn btn-info">
+        <input type="checkbox" id="allAndNotAll"/>全选/反选
+    </label>
+<form action="{{ url_for(".task_detail", task_id=task.id) }}" method="post">
+    <div class="text-left col-md-5">
+        <div>
+            <p>根据你填写的端口生成的推荐插件</p>
+        </div>
+        <div class="btn-group-vertical" data-toggle="buttons">
+            {% for plugin in recommend_plugins %}
+                <label class="btn btn-default active">
+                    <input type="checkbox" name="check" checked="checked" value="{{ plugin.plugin_name }}">{{ plugin.description_name }}
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="text-right col-md-5">
+        <div>
+            <p>插件列表</p>
+        </div>
+        <div class="btn-group-vertical" data-toggle="buttons">
+            {% for plugin in remain_plugins %}
+                <label class="btn btn-default">
+                    <input type="checkbox" name="check" value="{{ plugin.plugin_name }}">{{ plugin.description_name }}
+                </label>
+            {% endfor %}
+        </div>
+    </div>
+    <div class="text-center col-lg-10">
+        <button class="btn btn-info" type="submit" id="do_submit" name="submit" value="1">submit</button>
+    </div>
+</form>
+</div>
+{% endblock %}
+{% block scripts %}
+    {{ super() }}
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.4.1.min.js"></script>
+    <script type="text/javascript">
+
+    $("#allAndNotAll").click(function() {
+        if (this.checked){
+            $("input[name='check']:checkbox").each(function(){
+                $(this).attr("checked", true);
+            });
+            $("label").addClass("active");
+        }
+        else {
+            $("input[name='check']:checkbox").each(function() {
+                $(this).attr("checked", false);
+            });
+            $("label").removeClass("active");
+        }
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+        <div class="page-header">
+            <h3>任务列表</h3>
+        </div>
+    {% for task in tasks %}
+        <li class="list-group-item">
+            <a href="{{ url_for(".task_detail", task_id=task.id) }}">Task id: {{ task.id }}</a>
+            {% if task.active %}<span class="badge">运行中</span>{% endif %}
+            <p>Create Time: {{ task.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+            {% if task.active %}<a href="{{ url_for(".cancel", task_id=task.id) }}">
+                <span class="btn btn-danger">Stop</span>
+            </a>
+            {% endif %}
+        </li>
+    {% endfor %}
+</div>
+{% endblock %}

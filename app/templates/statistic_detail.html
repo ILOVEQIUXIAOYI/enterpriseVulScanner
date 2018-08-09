@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+    <div class="container">
+    {% for i in result %}
+        <li class="list-group-item">
+        {% for key in i %}
+            <p>
+                {{ key }}: {{ i[key] }}
+            </p>
+        {% endfor %}
+        </li>
+    {% endfor %}
+    </div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+        <div class="page-header">
+            <h3>结果列表</h3>
+        </div>
+    {% for task in tasks %}
+        <li class="list-group-item">
+            <a href="{{ url_for(".statistic_detail", task_id=task.id) }}">Task id: {{ task.id }}</a>
+            <p>Ip 列表： {% for ip in task.ip_list %}{{ ip }} {% endfor %} </p>
+            <p>Create Time: {{ task.create_time.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+        </li>
+    {% endfor %}
+</div>
+{% endblock %}
