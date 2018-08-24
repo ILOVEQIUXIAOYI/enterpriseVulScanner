@@ -17,15 +17,16 @@ def load(obj):
 
 
 def ip_recognize(ip):
-    if ' ' in ip:
-        ip = ip.strip('\r\n').split()
-        ip_list = IpRange(ip[0], ip[1])
-        return ip_list
-    elif ',' in ip:
+    if ',' in ip:
+        ip = ip.strip('\r\n ')
         ip = ip.split(',')
         return ip
     elif '/' in ip:
         ip_list = IpRange(ip)
+        return ip_list
+    elif ' ' in ip:
+        ip = ip.strip('\r\n').split()
+        ip_list = IpRange(ip[0], ip[1])
         return ip_list
     else:
         return [ip]

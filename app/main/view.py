@@ -3,15 +3,14 @@
 """
 
 from flask import request, render_template, \
-    redirect, session, url_for, flash, send_from_directory
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor
+    redirect, url_for, flash, send_from_directory
+from concurrent.futures import ThreadPoolExecutor
 
-from .form import LoginForm, SearchForm
+from .form import LoginForm, SearchForm, PortScanForm
 from . import main
 from ..models import Admin, Task, Plugin
 from ..utils import ip_recognize, gen_recommend, dump, load
 from .. import db
-from ..decorators import login_required
 
 from redis import Redis
 import os
@@ -158,7 +157,7 @@ def run_plugin(plugins, ip_list, port_list, task_id):
 
     # store as file
     rst = redis.lrange(task_id + "-result", 0,
-                       redis.llen(task_id+ "-result"))
+                       redis.llen(task_id + "-result"))
     try:
         with open(directory + "/" + task_id + '-result.mydb', 'wb') as f:
             f.write(dump(rst))
@@ -192,3 +191,16 @@ def statistic_detail(task_id):
 def download(filename):
 
     return send_from_directory(directory, filename, as_attachment=True)
+
+
+@main.route('/port_scan', methods=['GET', 'POST'])
+def port_scan():
+    from .application.port_scanner import scanner
+    form = PortScanForm()
+    flash("进行端口扫描时，请不要关闭本页面。。。")
+    if form.validate_on_submit():
+        ip_list = ip_recognize(form.ip.data)
+        result_info = scanner(ip_list)
+    else:
+        result_info = {}
+    return render_template("port_scan.html", form=form, result_info=result_info)
