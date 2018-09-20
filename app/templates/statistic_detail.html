@@ -10,5 +10,11 @@
         {% endfor %}
         </li>
     {% endfor %}
+        <a href="{{  url_for(".download", filename=task_id+'-report.html') }}">
+            <button class="bg-success">
+                下载
+            </button>
+        </a>
     </div>
+
 {% endblock %}

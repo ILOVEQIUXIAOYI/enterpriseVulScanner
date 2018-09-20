@@ -148,7 +148,8 @@ def run_plugin(plugins, ip_list, port_list, task_id):
             try:
                 from importlib import import_module
                 tmp_module = import_module(".plugin.plugins."+plugin, 'app')
-                result = tmp_module.run(plugin, ip_list, port_list)
+                result = tmp_module.run(ip_list, port_list)
+                redis.delete(str(task_id) + '-result')
                 redis.lpush(str(task_id) + '-result', dump(result))
             except Exception as e:
                 print(e)
@@ -176,20 +177,27 @@ def statistic():
 @main.route('/statistic/<task_id>', methods=['GET', 'POST'])
 def statistic_detail(task_id):
     result = list()
-    rst = redis.lrange("1-result", 0, redis.llen("1-result"))
+    rst = redis.lrange("{}-result".format(task_id),
+                       0, redis.llen("{}-result".format(task_id)))
     if not rst:
         with open(directory + '/' + task_id + '-result.mydb', 'rb') as f:
             rst = load(f.read())
-    for i in rst:
-        result.append(load(i))
+    with open(directory + '/' + task_id + '-report.html', 'w') as f:
+        f.write("<html>\n<body>")
+        for i in rst:
+            i = load(i)
+            if i:
+                result.append(i)
+                for key in i:
+                    f.write("<i>{}: {}</i>".format(key, i[key]))
+        f.write("</body>\n</html>")
     if 0:
-        return redirect(url_for(".download", filename=task_id+'-result.mydb'))
-    return render_template('statistic_detail.html', result=result)
+        return redirect(url_for(".download", filename=task_id+'-result.html'))
+    return render_template('statistic_detail.html', task_id=task_id, result=result)
 
 
 @main.route('/download/<filename>', methods=['GET',])
 def download(filename):
-
     return send_from_directory(directory, filename, as_attachment=True)
 
 

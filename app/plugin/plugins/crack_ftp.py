@@ -1,13 +1,10 @@
-"""hahaha
+"""
     Created by zltningx on 18-4-30.
 """
 
-from time import sleep
 from concurrent.futures import ThreadPoolExecutor
 
 import socket
-import os
-import sys
 import ftplib
 
 recommend_port = [
@@ -34,12 +31,14 @@ def login(ip,user,passwd):
         pass
     else:
         print("Login success!--------------> {}".format(ip))
-        with open(os.path.abspath('.')+'/ftpaccount.txt','a+') as f:
-            f.write(ip+'#'+user+'#'+passwd+'\n')
-        ftp.quit()
+        info = plugin_info()
+        info['ip'] = ip
+        info['login_type'] = "user password required"
+        info['description'] = "可使用弱账户密码登录ftp服务器"
+        return info
 
 
-def loginanonymously(ip):
+def loginanonymously(ip, user_list):
     try:
         ftp = ftplib.FTP(ip)
         ftp.login()
@@ -47,36 +46,33 @@ def loginanonymously(ip):
         print("Login as Anonymously False! {}".format(ip))
         try:
             with ThreadPoolExecutor(3) as Executor:
-                with open(sys.argv[1],'r') as userfile:
-                    with open(sys.argv[2],'r') as passwdfile:
-                        for user in userfile:
-                            user = user.strip('\n')
-                            for passwd in passwdfile:
-                                passwd = passwd.strip('\n')
-                                try:
-                                    Executor.submit(login,ip,user,passwd)
-                                except Exception as e:
-                                    print(e)
-                                    pass
+                with open("lib/dict/ftp_dict",'r') as passwdfile:
+                    for user in user_list:
+                        for passwd in passwdfile:
+                            passwd = passwd.strip('\n')
+                            try:
+                                Executor.submit(login, ip, user, passwd)
+                            except Exception as e:
+                                print(e)
         except ftplib.all_errors:
             pass
     else:
         print("Login success!--------------->  {}".format(ip))
-        with open(os.path.abspath('.')+'/ftpanonymously.txt','a+') as f:
-            f.write(ip+'\n')
-        ftp.quit()
+        info = plugin_info()
+        info['ip'] = ip
+        info['login_type'] = "Anonymously"
+        info['description'] = "可使用匿名方式登录ftp服务器"
+        return info
 
 
-def conn(ip, port):
+def conn(ip, user_list):
     try:
         serv = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
-        check = serv.connect_ex((ip, port))
+        check = serv.connect_ex((ip, 21))
         if check == 0:
             loginanonymously(ip)
-            with open(os.path.abspath('.')+'/open21.txt','a+') as f:
-                f.write(ip+'\r\n')
         else:
-            print("[+]{} No Found FTP Port on {}".format(ip, port))
+            print("[+]{} No Found FTP".format(ip))
         serv.close()
     except Exception as e:
         print(e)
@@ -88,8 +84,11 @@ def run(ip_list, port_list, timeout=10):
     socket.setdefaulttimeout(2.5)
     with ThreadPoolExecutor(10) as executor:
         for ip in ip_list:
-            for port in port_list:
-                try:
-                    executor.submit(conn, ip)
-                except Exception as e:
-                    pass
+            try:
+                executor.submit(conn, ip, user_list)
+            except Exception as e:
+                pass
+
+
+if __name__ == '__main__':
+    pass

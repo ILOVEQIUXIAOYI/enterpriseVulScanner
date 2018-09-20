@@ -23,7 +23,7 @@ def run(ip_list, port_list, timeout=5):
     for ip in ip_list:
         for port in port_list:
             try:
-                url = "http://{}:{}".format(ip, port)
+                url = "http://{}:{}".format(ip.strip("\r\n"), port)
                 response = request.urlopen(url, timeout=timeout).read()
                 if "WebResource.axd?d=" in str(response):
                     error_i = 0
