@@ -25,7 +25,7 @@ class SearchForm(FlaskForm):
                                description="输入ip开始扫描")
     port = StringField("Port", validators=[Length(0, 128)],
                        render_kw={"placeholder":
-                                  "多个端口使用逗号隔开，不填则使用默认端口集"})
+                                  "多个端口使用逗号隔开，不填则使用nmap扫描出的端口集"})
     submit = SubmitField("Start")
 
 

@@ -11,6 +11,7 @@ from . import main
 from ..models import Admin, Task, Plugin
 from ..utils import ip_recognize, gen_recommend, dump, load
 from .. import db
+from .application.port_scanner import scanner, run_time_scanner
 
 from redis import Redis
 import os
@@ -115,16 +116,25 @@ def running():
 @main.route('/running/<task_id>', methods=['GET', 'POST'])
 # @login_required
 def running_detail(task_id):
+    """
+    :param task_id:
+    :return:
+    """
     task = Task.query.filter_by(id=task_id).first()
     running_task = redis.get(task_id)
     if not running_task:
+        info, result = run_time_scanner(task.ip_list)
         plugins = list()
         for plugin in task.plugins:
             plugins.append(plugin.plugin_name)
         executor = ThreadPoolExecutor(1)
         redis.set(task_id, 'start')
-        executor.submit(run_plugin, plugins,
-                        task.ip_list, task.port_list, task_id)
+        if result:
+            executor.submit(run_plugin, plugins,
+                            task.ip_list, result, task_id)
+        else:
+            executor.submit(run_plugin, plugins, task.ip_list,
+                            task.port_list, task_id)
         return redirect(url_for(".running"))
     else:
         task.active = False
@@ -191,8 +201,6 @@ def statistic_detail(task_id):
                 for key in i:
                     f.write("<i>{}: {}</i>".format(key, i[key]))
         f.write("</body>\n</html>")
-    if 0:
-        return redirect(url_for(".download", filename=task_id+'-result.html'))
     return render_template('statistic_detail.html', task_id=task_id, result=result)
 
 
@@ -203,7 +211,6 @@ def download(filename):
 
 @main.route('/port_scan', methods=['GET', 'POST'])
 def port_scan():
-    from .application.port_scanner import scanner
     form = PortScanForm()
     flash("进行端口扫描时，请不要关闭本页面。。。")
     if form.validate_on_submit():
